@@ -1,14 +1,25 @@
-const express = require("express");
-const cors = require('cors')
+const express = require('express');
+const cors = require('cors');
+const apiRoutes = require('./routes//index');
+const sequelize = require('./config/db');
 const app = express();
-
+require('dotenv').config();
+// Middleware
 app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-app.get("/api/home", (req, res) => {
-    res.json({message: "Hello World11!"});
+
+// Routes
+app.use('/api', apiRoutes);
+
+
+// Start the server
+const PORT = process.env.PORT || 8080;
+sequelize.sync().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
 });
 
-const port = process.env.PORT || 8080;
-app.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-});
+module.exports = app;
