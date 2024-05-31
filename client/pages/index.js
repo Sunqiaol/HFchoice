@@ -1,27 +1,28 @@
-import React, {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { auth } from '../firebase';
 
-function Index() {
-  
-  const [message, setMessage] = useState("Loading")
+export default function Home() {
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  console.log(process.env.NEXT_PUBLIC_SERVER_URL + "/api/home")
   useEffect(() => {
-    fetch(process.env.NEXT_PUBLIC_SERVER_URL + "/api/home").then(
-      response => response.json()
-    ).then(
-      data => {
-        console.log(data)
-        setMessage(data.message)
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      console.log('Authenticated user:', user); // Log the user object
+      if (user) {
+        router.push('/AuthComponent');
+      } else {
+        router.push('/login');
       }
-    )
-  }, [])
+      setLoading(false);
+    });
 
-  return (
-    <div>
-      <div>Return message from server</div>
-      <div>{message}</div>
-    </div>
-  )
+    return () => unsubscribe();
+  }, [router]);
+
+  if (loading) {
+    return <div>Loading...</div>; // Show a loading message while checking auth state
+  }
+
+  return <div>Redirecting...</div>; // Show a redirecting message
 }
-
-export default Index
