@@ -10,6 +10,7 @@ import { PencilAltIcon, TrashIcon } from '@heroicons/react/solid';
 import AddNewItemDialog from '../components/AddNewItemDialog';
 import EditItemDialog from '../components/EditItemDialog';
 import MuiAlert from '@mui/material/Alert';
+import Link from 'next/link';
 
 const Admin = () => {
   const router = useRouter();
@@ -142,12 +143,12 @@ const Admin = () => {
           >
             Sign Out
           </button>
-          <a
+          <Link
             href='/dashboard'
             className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
           >
             Dashboard
-          </a>
+          </Link>
         </div>
       </div>
       <div className="flex justify-between items-center mb-8">
