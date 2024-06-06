@@ -10,7 +10,6 @@ import { PencilAltIcon, TrashIcon } from '@heroicons/react/solid';
 import AddNewItemDialog from '../components/AddNewItemDialog';
 import EditItemDialog from '../components/EditItemDialog';
 import MuiAlert from '@mui/material/Alert';
-import Link from 'next/link';
 
 const Admin = () => {
   const router = useRouter();
@@ -114,6 +113,9 @@ const Admin = () => {
     setCurrentPage(1);
   };
 
+  const getProxiedImageUrl = (url) => {
+    return `${process.env.NEXT_PUBLIC_SERVER_URL}/proxy?url=${encodeURIComponent(url)}`;
+};
   const filteredItems = items.filter(item => {
     if (filter === 'visible') return item.visible;
     if (filter === 'non-visible') return !item.visible;
@@ -137,18 +139,16 @@ const Admin = () => {
           Add Item
         </button>
         <div className="flex space-x-4">
-          <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50"
-            onClick={signOutUser}
-          >
+          <button onClick={signOutUser} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50 mb-8">
             Sign Out
           </button>
-          <Link
-            href='/dashboard'
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
+
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 mb-8 mr-3"
           >
             Dashboard
-          </Link>
+          </button>
         </div>
       </div>
       <div className="flex justify-between items-center mb-8">
@@ -177,7 +177,7 @@ const Admin = () => {
         {currentItems.map((item) => (
           <div key={item.id} className="bg-white shadow-md rounded p-4">
             <div className="flex items-center mb-4">
-              <img src={item.picture} alt={item.codigo} className="w-16 h-16 rounded-full mr-4" />
+              <img src={getProxiedImageUrl(item.picture)} alt={item.codigo} className="w-16 h-16 rounded-full mr-4" />
               <div>
                 <h2 className="text-xl font-bold">{item.discripcion}</h2>
                 <p className="text-gray-600">{item.codigo}</p>
