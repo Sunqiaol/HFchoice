@@ -55,6 +55,10 @@ const Dashboard = () => {
         setIsModalOpen(true); // Open the modal
     };
 
+    const getProxiedImageUrl = (url) => {
+        return `/proxy?url=${encodeURIComponent(url)}`;
+    };
+
     const filteredItems = items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
     const totalPages = Math.ceil(items.length / itemsPerPage);
 
@@ -96,7 +100,7 @@ const Dashboard = () => {
                 {filteredItems.map((item) => (
                     <div key={item.id} className="bg-white shadow-md rounded p-4 cursor-pointer" onClick={() => handleItemClick(item)}>
                         <div className="flex items-center mb-4">
-                            <img src={item.picture} alt={item.codigo} className="w-16 h-16 rounded-full mr-4" />
+                            <img src={getProxiedImageUrl(item.picture)} alt={item.codigo} className="w-16 h-16 rounded-full mr-4" />
                             <div>
                                 <h2 className="text-xl font-bold">{item.discripcion}</h2>
                                 <p className="text-gray-600">{item.codigo}</p>
