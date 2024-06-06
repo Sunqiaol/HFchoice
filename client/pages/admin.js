@@ -114,9 +114,8 @@ const Admin = () => {
   };
 
   const getProxiedImageUrl = (url) => {
-    return `/proxy?url=${encodeURIComponent(url)}`;
-  };
-
+    return `${process.env.NEXT_PUBLIC_SERVER_URL}/proxy?url=${encodeURIComponent(url)}`;
+};
   const filteredItems = items.filter(item => {
     if (filter === 'visible') return item.visible;
     if (filter === 'non-visible') return !item.visible;
