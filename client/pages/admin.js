@@ -140,18 +140,16 @@ const Admin = () => {
           Add Item
         </button>
         <div className="flex space-x-4">
-          <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50"
-            onClick={signOutUser}
-          >
+          <button onClick={signOutUser} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50 mb-8">
             Sign Out
           </button>
-          <Link
-            href='/dashboard'
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
+
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 mb-8 mr-3"
           >
             Dashboard
-          </Link>
+          </button>
         </div>
       </div>
       <div className="flex justify-between items-center mb-8">
