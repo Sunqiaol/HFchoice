@@ -15,6 +15,7 @@ const Dashboard = () => {
     const [itemsPerPage, setItemsPerPage] = useState(9);
     const [selectedItem, setSelectedItem] = useState(null); // State for selected item
     const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+    const [searchQuery, setSearchQuery] = useState(''); // State for search query
     const itemsPerPageOptions = [9, 24, 49, 99];
 
     const signOutUser = () => {
@@ -50,6 +51,10 @@ const Dashboard = () => {
         setCurrentPage(1); // Reset to first page on items per page change
     };
 
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
+
     const handleItemClick = (item) => {
         setSelectedItem(item); // Set the selected item
         setIsModalOpen(true); // Open the modal
@@ -59,8 +64,15 @@ const Dashboard = () => {
         return `${process.env.NEXT_PUBLIC_SERVER_URL}/proxy?url=${encodeURIComponent(url)}`;
     };
 
-    const filteredItems = items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    const totalPages = Math.ceil(items.length / itemsPerPage);
+    // Filter items based on search query
+    const filteredItems = items.filter(item =>
+        item.discripcion.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.codigo.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Paginate the filtered items
+    const paginatedItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -80,6 +92,8 @@ const Dashboard = () => {
                 <input
                     type="text"
                     placeholder="Search"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
                     className="border rounded p-2 w-full mr-4"
                 />
                 <div>
@@ -97,7 +111,7 @@ const Dashboard = () => {
                 </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                {filteredItems.map((item) => (
+                {paginatedItems.map((item) => (
                     <div key={item.id} className="bg-white shadow-md rounded p-4 cursor-pointer" onClick={() => handleItemClick(item)}>
                         <div className="flex items-center mb-4">
                             <img src={getProxiedImageUrl(item.picture)} alt={item.codigo} className="w-16 h-16 rounded-full mr-4" />
