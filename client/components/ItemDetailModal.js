@@ -1,6 +1,11 @@
 import React from 'react';
 
+
 const ItemDetailModal = ({ isOpen, onClose, item }) => {
+
+    const getProxiedImageUrl = (url) => {
+        return `${process.env.NEXT_PUBLIC_SERVER_URL}/proxy?url=${encodeURIComponent(url)}`;
+    };
   if (!isOpen) return null;
 
   return (
@@ -14,7 +19,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
           Close
         </button>
         <div className="flex flex-col sm:flex-row">
-          <img src={item.picture} alt={item.codigo} className="w-full sm:w-1/2 rounded-lg mb-4 sm:mb-0 sm:mr-4" />
+          <img src={getProxiedImageUrl(item.picture)} alt={item.codigo} className="w-full sm:w-1/2 rounded-lg mb-4 sm:mb-0 sm:mr-4" />
           <div>
             <h2 className="text-2xl font-bold mb-2">{item.discripcion}</h2>
             <p className="text-gray-600 mb-1">Codigo: {item.codigo}</p>
