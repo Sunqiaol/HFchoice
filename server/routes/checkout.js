@@ -27,9 +27,18 @@ router.post('/checkout', async (req, res) => {
         text: `You have a new order from ${userEmail} with the following items:\n\n${cart.map(item => `${item.discripcion} - ${item.codigo}`).join('\n')}`
     };
 
+    const mailOptions2 = {
+        from: process.env.EMAIL,
+        to: userEmail, // Your recipient email address
+        subject: 'New Order Checkout',
+        text: `You Had place a with the following items:\n\n${cart.map(item => `${item.discripcion} - ${item.codigo}`).join('\n')}`
+    };
+
+
     try {
         // Send email
         await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions2);
         res.status(200).send('Email sent successfully');
     } catch (error) {
         console.error('Error sending email:', error);
