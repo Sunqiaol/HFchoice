@@ -1,28 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/router';
-import { auth } from '../firebase'; // Make sure you have configured Firebase correctly
-import axios from 'axios'; // Axios for making API requests
+import { auth } from '../firebase';
+import axios from 'axios';
 import { Pagination } from '@mui/material';
-import useAuth from '../hooks/useAuth'; // Assuming you have a useAuth hook
-import ItemDetailModal from '../components/ItemDetailModal'; // Import the new modal component
+import useAuth from '../hooks/useAuth';
+import ItemDetailModal from '../components/ItemDetailModal';
+import CartModal from '../components/CartModal';
 
 const Dashboard = () => {
     const router = useRouter();
-    const { user, role } = useAuth(); // Assuming useAuth provides user and role
+    const { user, role } = useAuth();
     const [items, setItems] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(9);
-    const [selectedItem, setSelectedItem] = useState(null); // State for selected item
-    const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
-    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+    const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [cart, setCart] = useState([]);
     const itemsPerPageOptions = [9, 24, 49, 99];
 
     const signOutUser = () => {
         signOut(auth)
             .then(() => {
                 console.log("User signed out.");
-                router.push('/login'); // Redirect to login page after sign out
+                router.push('/login');
             })
             .catch((error) => {
                 console.error("Error signing out: ", error);
@@ -32,8 +35,8 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchVisibleItems = async () => {
             try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/item/getVisibleItems`); // Fetch visible items from the backend
-                setItems(response.data); // Set the items in the state
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/item/getVisibleItems`);
+                setItems(response.data);
             } catch (error) {
                 console.error('Error fetching items:', error);
             }
@@ -48,7 +51,7 @@ const Dashboard = () => {
 
     const handleItemsPerPageChange = (event) => {
         setItemsPerPage(parseInt(event.target.value, 10));
-        setCurrentPage(1); // Reset to first page on items per page change
+        setCurrentPage(1);
     };
 
     const handleSearchChange = (event) => {
@@ -56,21 +59,38 @@ const Dashboard = () => {
     };
 
     const handleItemClick = (item) => {
-        setSelectedItem(item); // Set the selected item
-        setIsModalOpen(true); // Open the modal
+        setSelectedItem(item);
+        setIsItemModalOpen(true);
     };
 
     const getProxiedImageUrl = (url) => {
         return `${process.env.NEXT_PUBLIC_SERVER_URL}/proxy?url=${encodeURIComponent(url)}`;
     };
 
-    // Filter items based on search query
+    const addToCart = (item) => {
+        setCart([...cart, item]);
+    };
+
+    const handleCheckout = async () => {
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/checkout/checkout`, {
+                cart,
+                userEmail: user.email
+            });
+            alert('Checkout successful! An email has been sent.');
+            setCart([]);
+            setIsCartModalOpen(false);
+        } catch (error) {
+            console.error('Error during checkout:', error);
+            alert('Checkout failed. Please try again.');
+        }
+    };
+
     const filteredItems = items.filter(item =>
         item.discripcion.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.codigo.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Paginate the filtered items
     const paginatedItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
     const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
@@ -127,6 +147,15 @@ const Dashboard = () => {
                             <p className="text-gray-600">Unit: {item.unidad}</p>
                             <p className="text-gray-600">Cost: {item.costo}</p>
                         </div>
+                        <button
+                            className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                addToCart(item);
+                            }}
+                        >
+                            Add to Cart
+                        </button>
                     </div>
                 ))}
             </div>
@@ -138,10 +167,24 @@ const Dashboard = () => {
                     color="primary"
                 />
             </div>
+            <div className="fixed bottom-8 right-8">
+                <button
+                    className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
+                    onClick={() => setIsCartModalOpen(true)}
+                >
+                    View Cart ({cart.length})
+                </button>
+            </div>
             <ItemDetailModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isItemModalOpen}
+                onClose={() => setIsItemModalOpen(false)}
                 item={selectedItem}
+            />
+            <CartModal
+                isOpen={isCartModalOpen}
+                onClose={() => setIsCartModalOpen(false)}
+                cart={cart}
+                handleCheckout={handleCheckout}
             />
         </div>
     );

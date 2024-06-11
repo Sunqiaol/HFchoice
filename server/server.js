@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const request = require('request');
 const apiRoutes = require('./routes/index'); // Ensure this import is correct
-const sequelize = require('./config/db'); // Ensure this import is correct
+const checkoutRoutes = require('./routes/checkout'); // Add this line
 
 const app = express();
 require('dotenv').config();
@@ -25,12 +25,11 @@ app.get('/proxy', (req, res) => {
 // Routes
 app.use('/api', apiRoutes);
 
+
 // Start the server
 const PORT = process.env.PORT || 8080;
-sequelize.sync().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 module.exports = app;
