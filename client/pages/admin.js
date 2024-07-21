@@ -115,7 +115,8 @@ const Admin = () => {
 
   const getProxiedImageUrl = (url) => {
     return `${process.env.NEXT_PUBLIC_SERVER_URL}/proxy?url=${encodeURIComponent(url)}`;
-};
+  };
+
   const filteredItems = items.filter(item => {
     if (filter === 'visible') return item.visible;
     if (filter === 'non-visible') return !item.visible;
@@ -130,36 +131,35 @@ const Admin = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Welcome To Admin</h1>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold mb-4 md:mb-0">Welcome To Admin</h1>
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 mb-4 md:mb-0"
           onClick={() => setOpenAddDialog(true)}
         >
           Add Item
         </button>
         <div className="flex space-x-4">
-          <button onClick={signOutUser} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50 mb-8">
+          <button onClick={signOutUser} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50 mb-4 md:mb-0">
             Sign Out
           </button>
-
           <button
             onClick={() => router.push('/dashboard')}
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 mb-8 mr-3"
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 mb-4 md:mb-0"
           >
             Dashboard
           </button>
         </div>
       </div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
         <input
           type="text"
           placeholder="Search"
           value={searchQuery}
           onChange={handleSearchChange}
-          className="border rounded p-2 w-full mr-4"
+          className="border rounded p-2 w-full md:w-1/2 mb-4 md:mb-0 md:mr-4"
         />
-        <div>
+        <div className="flex items-center">
           <label htmlFor="filter" className="mr-2">Filter:</label>
           <select
             id="filter"
@@ -173,7 +173,7 @@ const Admin = () => {
           </select>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
         {currentItems.map((item) => (
           <div key={item.id} className="bg-white shadow-md rounded p-4">
             <div className="flex items-center mb-4">
@@ -206,8 +206,8 @@ const Admin = () => {
           </div>
         ))}
       </div>
-      <div className="flex justify-between items-center">
-        <div>
+      <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="mb-4 md:mb-0">
           <label htmlFor="itemsPerPage" className="mr-2">Items per page:</label>
           <select
             id="itemsPerPage"
