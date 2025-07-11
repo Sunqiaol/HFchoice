@@ -20,7 +20,7 @@ const AuthComponent = () => {
     };
 
     useEffect(() => {
-        const fetchUserDetails = async (uid) => {
+        const fetchUserDetails = async (uid, email) => {
             try {
                 const userCredential = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/getUser`, { uid });
                 console.log(userCredential.data.role);
@@ -31,15 +31,37 @@ const AuthComponent = () => {
                     router.push('/admin')
                 }
             } catch (error) {
-                console.error("Error Fetching : ", error);
+                // If user not found, add user and try again
+                if (error.response && error.response.status === 404) {
+                    try {
+                        await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/addUser`, {
+                            firebaseId: uid,
+                            email: email,
+                            role: 'viewer'
+                        });
+                        // Try fetching again
+                        const userCredential = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/getUser`, { uid });
+                        if(userCredential.data.role == "Viewer"){
+                            router.push('/dashboard');
+                        }
+                        else if(userCredential.data.role == "Admin"){
+                            router.push('/admin')
+                        }
+                    } catch (addUserError) {
+                        console.error("Error adding user:", addUserError);
+                    }
+                } else {
+                    console.error("Error Fetching : ", error);
+                }
             }
         };
 
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 const uid = user.uid;
+                const email = user.email;
                 console.log(uid);
-                fetchUserDetails(uid);
+                fetchUserDetails(uid, email);
             } else {
                 router.push('/login');
             }
