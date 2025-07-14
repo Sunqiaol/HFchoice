@@ -1,31 +1,64 @@
 import React, { useState } from 'react';
+import { getAuth } from 'firebase/auth';
+import { app } from '../firebase';
+import { uploadImageToStorage } from '../utils/firebaseStorage';
 
-const AddNewItemDialog = ({ open, onClose, onAddItem }) => {
+const AddNewItemDialog = ({ open, onClose, onAddItem, userRole }) => {
   const [newItem, setNewItem] = useState({
-    picture: '',
-    codigo: '',
-    discripcion: '',
-    marca: '',
-    grupo: '',
-    unidad: '',
-    costo: '',
-    p_a: '',
-    p_b: '',
-    p_c: '',
-    p_d: '',
-    inve: '',
-    un_ctn: '',
-    ctns: '',
+    CODIGO: '',
+    DISCRIPCION: '',
+    MARCA: '',
+    GRUPO: '',
+    UNIDAD: '',
+    COSTO: '',
+    P_A: '',
+    P_B: '',
+    P_C: '',
+    P_D: '',
+    INVE: '',
+    UN_CTN: '',
+    CTNS: '',
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewItem({ ...newItem, [name]: value });
   };
 
-  const handleAddItem = () => {
-    onAddItem(newItem);
-    onClose();
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
+
+  const handleAddItem = async () => {
+    if (userRole === 'Admin' && imageFile && newItem.CODIGO) {
+      setUploading(true);
+      try {
+        const auth = getAuth(app);
+        const user = auth.currentUser;
+        
+        if (!user) {
+          throw new Error('User not authenticated');
+        }
+        
+        const result = await uploadImageToStorage(imageFile, newItem.CODIGO);
+        
+        setUploading(false);
+        onAddItem(newItem);
+        onClose();
+        
+      } catch (err) {
+        console.error('Upload error:', err);
+        alert('Image upload failed: ' + err.message);
+        setUploading(false);
+        return;
+      }
+    } else {
+      onAddItem(newItem);
+      onClose();
+    }
   };
 
   return (
@@ -39,167 +72,163 @@ const AddNewItemDialog = ({ open, onClose, onAddItem }) => {
           <div className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="picture" className="block text-sm font-medium text-gray-700">Picture URL</label>
+                <label htmlFor="CODIGO" className="block text-sm font-medium text-gray-700">Codigo</label>
                 <input
                   type="text"
-                  name="picture"
-                  value={newItem.picture}
-                  onChange={handleChange}
-                  placeholder="Picture URL"
-                  className="border rounded p-2 w-full"
-                />
-              </div>
-              <div>
-                <label htmlFor="codigo" className="block text-sm font-medium text-gray-700">Codigo</label>
-                <input
-                  type="text"
-                  name="codigo"
-                  value={newItem.codigo}
+                  name="CODIGO"
+                  value={newItem.CODIGO}
                   onChange={handleChange}
                   placeholder="Codigo"
                   className="border rounded p-2 w-full"
                 />
+                <p className="text-xs text-gray-500 mt-1">Image will be saved as: {codigo}.jpg</p>
               </div>
               <div>
-                <label htmlFor="discripcion" className="block text-sm font-medium text-gray-700">Description</label>
+                <label htmlFor="DISCRIPCION" className="block text-sm font-medium text-gray-700">Description</label>
                 <input
                   type="text"
-                  name="discripcion"
-                  value={newItem.discripcion}
+                  name="DISCRIPCION"
+                  value={newItem.DISCRIPCION}
                   onChange={handleChange}
                   placeholder="Description"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="marca" className="block text-sm font-medium text-gray-700">Brand</label>
+                <label htmlFor="MARCA" className="block text-sm font-medium text-gray-700">Brand</label>
                 <input
                   type="text"
-                  name="marca"
-                  value={newItem.marca}
+                  name="MARCA"
+                  value={newItem.MARCA}
                   onChange={handleChange}
                   placeholder="Brand"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="grupo" className="block text-sm font-medium text-gray-700">Group</label>
+                <label htmlFor="GRUPO" className="block text-sm font-medium text-gray-700">Group</label>
                 <input
                   type="text"
-                  name="grupo"
-                  value={newItem.grupo}
+                  name="GRUPO"
+                  value={newItem.GRUPO}
                   onChange={handleChange}
                   placeholder="Group"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="unidad" className="block text-sm font-medium text-gray-700">Unit</label>
+                <label htmlFor="UNIDAD" className="block text-sm font-medium text-gray-700">Unit</label>
                 <input
                   type="text"
-                  name="unidad"
-                  value={newItem.unidad}
+                  name="UNIDAD"
+                  value={newItem.UNIDAD}
                   onChange={handleChange}
                   placeholder="Unit"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="costo" className="block text-sm font-medium text-gray-700">Cost</label>
+                <label htmlFor="COSTO" className="block text-sm font-medium text-gray-700">Cost</label>
                 <input
                   type="text"
-                  name="costo"
-                  value={newItem.costo}
+                  name="COSTO"
+                  value={newItem.COSTO}
                   onChange={handleChange}
                   placeholder="Cost"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="p_a" className="block text-sm font-medium text-gray-700">P_A</label>
+                <label htmlFor="P_A" className="block text-sm font-medium text-gray-700">P_A</label>
                 <input
                   type="text"
-                  name="p_a"
-                  value={newItem.p_a}
+                  name="P_A"
+                  value={newItem.P_A}
                   onChange={handleChange}
                   placeholder="P_A"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="p_b" className="block text-sm font-medium text-gray-700">P_B</label>
+                <label htmlFor="P_B" className="block text-sm font-medium text-gray-700">P_B</label>
                 <input
                   type="text"
-                  name="p_b"
-                  value={newItem.p_b}
+                  name="P_B"
+                  value={newItem.P_B}
                   onChange={handleChange}
                   placeholder="P_B"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="p_c" className="block text-sm font-medium text-gray-700">P_C</label>
+                <label htmlFor="P_C" className="block text-sm font-medium text-gray-700">P_C</label>
                 <input
                   type="text"
-                  name="p_c"
-                  value={newItem.p_c}
+                  name="P_C"
+                  value={newItem.P_C}
                   onChange={handleChange}
                   placeholder="P_C"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="p_d" className="block text-sm font-medium text-gray-700">P_D</label>
+                <label htmlFor="P_D" className="block text-sm font-medium text-gray-700">P_D</label>
                 <input
                   type="text"
-                  name="p_d"
-                  value={newItem.p_d}
+                  name="P_D"
+                  value={newItem.P_D}
                   onChange={handleChange}
                   placeholder="P_D"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="inve" className="block text-sm font-medium text-gray-700">Inve</label>
+                <label htmlFor="INVE" className="block text-sm font-medium text-gray-700">Inve</label>
                 <input
                   type="text"
-                  name="inve"
-                  value={newItem.inve}
+                  name="INVE"
+                  value={newItem.INVE}
                   onChange={handleChange}
                   placeholder="Inve"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="un_ctn" className="block text-sm font-medium text-gray-700">Un_Ctn</label>
+                <label htmlFor="UN_CTN" className="block text-sm font-medium text-gray-700">Un_Ctn</label>
                 <input
                   type="text"
-                  name="un_ctn"
-                  value={newItem.un_ctn}
+                  name="UN_CTN"
+                  value={newItem.UN_CTN}
                   onChange={handleChange}
                   placeholder="Un_Ctn"
                   className="border rounded p-2 w-full"
                 />
               </div>
               <div>
-                <label htmlFor="ctns" className="block text-sm font-medium text-gray-700">Ctns</label>
+                <label htmlFor="CTNS" className="block text-sm font-medium text-gray-700">Ctns</label>
                 <input
                   type="text"
-                  name="ctns"
-                  value={newItem.ctns}
+                  name="CTNS"
+                  value={newItem.CTNS}
                   onChange={handleChange}
                   placeholder="Ctns"
                   className="border rounded p-2 w-full"
                 />
               </div>
+              {userRole === 'Admin' && (
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Upload Image (Admin only)</label>
+                  <input type="file" accept="image/*" onChange={handleFileChange} />
+                </div>
+              )}
             </div>
           </div>
           <div className="p-4 border-t flex justify-end space-x-2">
             <button onClick={onClose} className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">
               Cancel
             </button>
-            <button onClick={handleAddItem} className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600">
-              Add Item
+            <button onClick={handleAddItem} className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600" disabled={uploading}>
+              {uploading ? 'Uploading...' : 'Add Item'}
             </button>
           </div>
         </div>

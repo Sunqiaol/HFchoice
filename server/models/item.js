@@ -2,68 +2,64 @@ const { Sequelize, DataTypes } = require('sequelize');
 const db = require('../config/db');
 
 
-const item = db.define('user', {
-    picture: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
-    codigo: {
+const item = db.define('item', {
+    CODIGO: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    discripcion: {
+    DISCRIPCION: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    modelo:{
+    MODELO:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    marca:{
+    MARCA:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    grupo:{
+    GRUPO:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    unidad:{
+    UNIDAD:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    costo:{
+    COSTO:{
+        type: DataTypes.DECIMAL(10,2),
+        allowNull: true
+    },
+    P_A:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    p_a:{
+    P_B:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    p_b:{
+    P_C:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    p_c:{
+    P_D:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    p_d:{
+    INVE:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    inve:{
+    UN_CTN:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    un_ctn:{
+    CTNS:{
         type: DataTypes.STRING,
         allowNull: true
     },
-    ctns:{
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    visible: {
+    VISIBLE: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true
