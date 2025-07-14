@@ -160,7 +160,7 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, hand
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="text-center">
                 <p className="text-lg font-semibold text-gray-900">Ready to request a quote for {getTotalItems()} items</p>
-                <p className="text-sm text-gray-600 mt-1">We'll provide pricing and availability information</p>
+                <p className="text-sm text-gray-600 mt-1">We&apos;ll provide pricing and availability information</p>
               </div>
             </div>
           )}

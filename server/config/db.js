@@ -12,7 +12,7 @@ const sequelize = new Sequelize(
         host: process.env.DB_HOST,
         port: 3307,
         dialect: 'mysql',
-        logging: console.log,
+        logging: false,
     }
 );
 
@@ -20,7 +20,7 @@ const sequelize = new Sequelize(
 sequelize
     .authenticate()
     .then(() => {
-        console.log('Connection to the database has been established successfully.');
+        // Database connection successful
     })
     .catch(err => {
         console.error('Unable to connect to the database:', err);

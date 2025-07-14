@@ -25,7 +25,6 @@ const Signup = () => {
                 console.error('Error signing up:', error.response ? error.response.data : error.message);
                 setError('Failed to sign up, please try again.');
             }
-            console.log('User signed up:', user);
         } catch (error) {
             console.error('Error signing up:', error.code, error.message);
             setError('Failed to sign up, please try again.');

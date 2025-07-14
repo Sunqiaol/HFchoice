@@ -52,6 +52,7 @@ const SmartImage = ({ codigo, alt, className, onError, ...props }) => {
   }
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={currentSrc}
       alt={alt || codigo}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { USER_ROLES } from '../constants';
@@ -27,7 +28,7 @@ const Header = ({ user, role, cart = [], cartItemCount = 0, onCartClick, onAddIt
           {/* Logo */}
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-pink-500 rounded-xl flex items-center justify-center">
-              <img src="/favicon.ico" alt="HF Choice" className="w-6 h-6" />
+              <Image src="/favicon.ico" alt="HF Choice" width={24} height={24} />
             </div>
             <div>
               <h1 className="text-xl font-bold gradient-text">HF Choice</h1>
