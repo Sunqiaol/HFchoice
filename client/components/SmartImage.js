@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { getImageUrlWithFallback } from '../utils/firebaseStorage';
 
 const SmartImage = ({ codigo, alt, className, onError, ...props }) => {
@@ -53,13 +52,12 @@ const SmartImage = ({ codigo, alt, className, onError, ...props }) => {
   }
 
   return (
-    <Image
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       src={currentSrc}
       alt={alt || codigo}
-      fill
       className={className}
       onError={handleImageError}
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       {...props}
     />
   );

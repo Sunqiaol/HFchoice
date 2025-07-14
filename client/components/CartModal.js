@@ -64,7 +64,7 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, hand
               {cart.map((item) => (
                 <div key={`${item.id}-${item.cartId}`} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl">
                   {/* Product Image */}
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-white relative">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-white">
                     <SmartImage
                       codigo={item.CODIGO}
                       alt={item.DISCRIPCION}

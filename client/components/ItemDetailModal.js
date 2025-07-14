@@ -43,7 +43,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Product Image */}
             <div className="space-y-4">
-              <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden shadow-lg relative">
+              <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden shadow-lg">
                 <SmartImage
                   codigo={item.CODIGO}
                   alt={item.DISCRIPCION}

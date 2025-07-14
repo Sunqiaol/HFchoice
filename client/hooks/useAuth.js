@@ -15,9 +15,7 @@ const useAuth = () => {
     useEffect(() => {
         const fetchUserDetails = async (uid) => {
             try {
-                console.log(`Fetching details for UID: ${uid}`);
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/getUser`, { uid });
-                console.log(`User details fetched: ${JSON.stringify(response.data)}`);
                 setRole(response.data.role);
             } catch (error) {
                 console.error("Error fetching user details:", error);
@@ -29,11 +27,9 @@ const useAuth = () => {
 
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log(`User authenticated: ${user.uid}`);
                 setUser(user);
                 fetchUserDetails(user.uid);
             } else {
-                console.log("No user authenticated");
                 router.push('/login');
             }
         });

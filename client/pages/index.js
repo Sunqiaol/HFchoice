@@ -8,7 +8,6 @@ export default function Home() {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log('Authenticated user:', user); // Log the user object
       if (user) {
         router.push('/AuthComponent');
       } else {

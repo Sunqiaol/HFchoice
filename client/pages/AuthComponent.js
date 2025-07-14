@@ -11,7 +11,6 @@ const AuthComponent = () => {
     const signOutUser = () => {
         signOut(auth)
             .then(() => {
-                console.log("User signed out.");
                 router.push('/login'); // Redirect to login page after sign out
             })
             .catch((error) => {
@@ -23,7 +22,6 @@ const AuthComponent = () => {
         const fetchUserDetails = async (uid, email) => {
             try {
                 const userCredential = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/getUser`, { uid });
-                console.log(userCredential.data.role);
                 if(userCredential.data.role == "Viewer"){
                     router.push('/dashboard');
                 }
@@ -60,7 +58,6 @@ const AuthComponent = () => {
             if (user) {
                 const uid = user.uid;
                 const email = user.email;
-                console.log(uid);
                 fetchUserDetails(uid, email);
             } else {
                 router.push('/login');
