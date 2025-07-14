@@ -55,11 +55,13 @@ const EditItemDialog = ({ open, onClose, onEditItem, editItemData, handleEditCha
           <div className="p-4">
             {editItemData?.CODIGO && (
               <div className="mb-4 flex justify-center">
-                <SmartImage
-                  codigo={editItemData.CODIGO}
-                  alt="Item"
-                  className="h-32 w-32 object-cover rounded-full"
-                />
+                <div className="h-32 w-32 relative">
+                  <SmartImage
+                    codigo={editItemData.CODIGO}
+                    alt="Item"
+                    className="object-cover rounded-full"
+                  />
+                </div>
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

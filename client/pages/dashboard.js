@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import axios from 'axios';
 import { Pagination } from '@mui/material';
 import useAuth from '../hooks/useAuth';
@@ -381,7 +382,7 @@ const Dashboard = () => {
                     <div className="text-center">
                         <div className="flex items-center justify-center space-x-3 mb-4">
                             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-pink-500 rounded-lg flex items-center justify-center">
-                                <img src="/favicon.ico" alt="HF Choice" className="w-5 h-5" />
+                                <Image src="/favicon.ico" alt="HF Choice" width={20} height={20} />
                             </div>
                             <span className="text-lg font-bold gradient-text">HF Choice</span>
                         </div>
