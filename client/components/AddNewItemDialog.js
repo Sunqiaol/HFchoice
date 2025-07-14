@@ -81,7 +81,7 @@ const AddNewItemDialog = ({ open, onClose, onAddItem, userRole }) => {
                   placeholder="Codigo"
                   className="border rounded p-2 w-full"
                 />
-                <p className="text-xs text-gray-500 mt-1">Image will be saved as: {codigo}.jpg</p>
+                <p className="text-xs text-gray-500 mt-1">Image will be saved as: {newItem.CODIGO || 'enter-codigo'}.jpg</p>
               </div>
               <div>
                 <label htmlFor="DISCRIPCION" className="block text-sm font-medium text-gray-700">Description</label>
