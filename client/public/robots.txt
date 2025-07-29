@@ -8,3 +8,4 @@ Sitemap: https://hfchoice.onrender.com/sitemap.xml
 Disallow: /api/
 Disallow: /admin
 Disallow: /_next/static/
+
