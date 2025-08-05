@@ -24,7 +24,7 @@ export default function Home() {
     return (
       <div>
         <Head>
-          <title>HFChoice (HungFa) - Premier Marketplace</title>
+          <title>HF Choice - Premier Marketplace | Quality Products & Services</title>
         </Head>
         <h1>Welcome to HFChoice (HungFa)</h1>
         <p>Your premier marketplace for quality products and services</p>
