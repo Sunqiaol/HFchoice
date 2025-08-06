@@ -3,6 +3,8 @@ const cors = require('cors');
 const request = require('request');
 const apiRoutes = require('./routes/index'); // Ensure this import is correct
 const checkoutRoutes = require('./routes/checkout'); // Add this line
+const testCheckoutRoutes = require('./routes/test-checkout'); // Test routes
+const cartRoutes = require('./routes/cart'); // Cart routes
 
 const app = express();
 require('dotenv').config();
@@ -57,7 +59,9 @@ app.get('/proxy', (req, res) => {
 
 // Routes
 app.use('/api', apiRoutes);
-app.use('/checkout', checkoutRoutes); // Add this line to use the checkout routes
+app.use('/api/checkout', checkoutRoutes); // Add this line to use the checkout routes
+app.use('/api/test', testCheckoutRoutes); // Test routes without auth
+app.use('/api/cart', cartRoutes); // Cart routes
 
 // Start the server
 const PORT = process.env.PORT || 8080;

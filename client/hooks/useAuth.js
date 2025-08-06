@@ -18,7 +18,7 @@ const useAuth = () => {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/getUser`, { uid });
                 setRole(response.data.role);
             } catch (error) {
-                console.error("Error fetching user details:", error);
+                console.error('Error fetching user details:', error);
                 router.push('/login');
             } finally {
                 setLoading(false); // Set loading to false after fetching
