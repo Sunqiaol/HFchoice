@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getImageUrlWithFallback } from '../utils/firebaseStorage';
+import { getImageUrlWithFallback } from '../../utils/firebaseStorage';
 
 const SmartImage = ({ codigo, alt, className, onError, ...props }) => {
   const [currentSrc, setCurrentSrc] = useState('');
@@ -32,7 +32,7 @@ const SmartImage = ({ codigo, alt, className, onError, ...props }) => {
       e.target.style.display = 'flex';
       e.target.style.alignItems = 'center';
       e.target.style.justifyContent = 'center';
-      e.target.innerHTML = '<span style="color: #64748b; font-size: 14px;">No Image</span>';
+      e.target.innerHTML = '<span style=\'color: #64748b; font-size: 14px;\'>No Image</span>';
       
       if (onError) {
         onError(e);
@@ -46,7 +46,7 @@ const SmartImage = ({ codigo, alt, className, onError, ...props }) => {
         className={`bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center ${className}`}
         {...props}
       >
-        <span className="text-gray-500 text-sm">No Image</span>
+        <span className='text-gray-500 text-sm'>No Image</span>
       </div>
     );
   }

@@ -3,7 +3,7 @@ export const FIREBASE_CONFIG = {
   PROJECT_ID: 'hfchoice-96de6'
 };
 
-export const PAGINATION_OPTIONS = [9, 24, 49, 99];
+export const PAGINATION_OPTIONS = [12, 24, 49, 99];
 
 export const USER_ROLES = {
   ADMIN: 'Admin',

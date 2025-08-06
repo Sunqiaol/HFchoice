@@ -4,29 +4,37 @@ import Image from 'next/image';
 import axios from 'axios';
 import { Pagination } from '@mui/material';
 import useAuth from '../hooks/useAuth';
-import Header from '../components/Header';
-import SearchFilters from '../components/SearchFilters';
+import Header from '../components/layout/Header';
+import CartService from '../utils/cartService';
+import SearchFilters from '../components/ui/SearchFilters';
 import ProductCard from '../components/ProductCard';
-import ItemDetailModal from '../components/ItemDetailModal';
-import CartModal from '../components/CartModal';
+import ItemDetailModal from '../components/modals/ItemDetailModal';
+import CartModal from '../components/modals/CartModal';
+import QuoteRequestModal from '../components/modals/QuoteRequestModal';
 import { getAllItems, addItem, editItem, deleteItem, toggleVisibility } from './api/itemApi';
-import AddNewItemDialog from '../components/AddNewItemDialog';
-import EditItemDialog from '../components/EditItemDialog';
+import AddNewItemDialog from '../components/modals/AddNewItemDialog';
+import EditItemDialog from '../components/modals/EditItemDialog';
 import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import { PAGINATION_OPTIONS, USER_ROLES } from '../constants';
+import { useTranslation } from '../hooks/useTranslation';
 
 const Dashboard = () => {
     const router = useRouter();
     const { user, role, loading } = useAuth();
+    const isAdmin = role === USER_ROLES.ADMIN;
+    const { t } = useTranslation();
     const [items, setItems] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(9);
+    const [itemsPerPage, setItemsPerPage] = useState(12);
     const [selectedItem, setSelectedItem] = useState(null);
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
     const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+    const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [cart, setCart] = useState([]);
+    const [cartService, setCartService] = useState(null);
+    const [cartLoading, setCartLoading] = useState(false);
     const itemsPerPageOptions = PAGINATION_OPTIONS;
     const [filters, setFilters] = useState({
         marca: '',
@@ -73,7 +81,30 @@ const Dashboard = () => {
                 setIsLoading(false);
             }
         };
-        fetchItems();
+
+        // Initialize cart service when user is available
+        if (user) {
+            const service = new CartService(user);
+            setCartService(service);
+
+            const loadCart = async () => {
+                setCartLoading(true);
+                try {
+                    const cartItems = await service.getCartItems();
+                    const formattedCart = CartService.formatCartItemsForDashboard(cartItems);
+                    setCart(formattedCart);
+                } catch (error) {
+                    console.error('Error loading cart:', error);
+                    // Keep empty cart on error
+                    setCart([]);
+                } finally {
+                    setCartLoading(false);
+                }
+            };
+
+            fetchItems();
+            loadCart();
+        }
     }, [role, loading, user, router]);
 
     const handlePageChange = (event, value) => {
@@ -95,41 +126,112 @@ const Dashboard = () => {
         setIsItemModalOpen(true);
     };
 
-    const addToCart = (item) => {
-        const cartId = `${item.id}-${Date.now()}`;
-        const cartItem = {
-            ...item,
-            cartId,
-            quantity: 1
-        };
-        setCart([...cart, cartItem]);
-        showSnackbar(`${item.DISCRIPCION} added to cart`);
+    const addToCart = async (item) => {
+        if (!cartService) {
+            showSnackbar('Cart service not available', 'error');
+            return;
+        }
+
+        setCartLoading(true);
+        try {
+            await cartService.addItem(item.id, 1);
+            
+            // Reload cart to get updated data
+            const cartItems = await cartService.getCartItems();
+            const formattedCart = CartService.formatCartItemsForDashboard(cartItems);
+            setCart(formattedCart);
+            
+            showSnackbar(`${item.DISCRIPCION} added to cart`);
+        } catch (error) {
+            console.error('Error adding item to cart:', error);
+            showSnackbar('Failed to add item to cart', 'error');
+        } finally {
+            setCartLoading(false);
+        }
     };
 
-    const updateCartQuantity = (cartId, newQuantity) => {
+    const updateCartQuantity = async (cartId, newQuantity) => {
         if (newQuantity <= 0) {
             removeFromCart(cartId);
             return;
         }
-        setCart(prevCart => 
-            prevCart.map(item => 
-                item.cartId === cartId 
-                    ? { ...item, quantity: newQuantity }
-                    : item
-            )
-        );
+
+        if (!cartService) {
+            showSnackbar('Cart service not available', 'error');
+            return;
+        }
+
+        setCartLoading(true);
+        try {
+            // Find the cart item to get its database ID
+            const cartItem = cart.find(item => item.cartId === cartId);
+            if (!cartItem) {
+                showSnackbar('Cart item not found', 'error');
+                return;
+            }
+
+            await cartService.updateQuantity(cartItem.cartItemId, newQuantity);
+            
+            // Update local cart state
+            setCart(prevCart => 
+                prevCart.map(item => 
+                    item.cartId === cartId 
+                        ? { ...item, quantity: newQuantity }
+                        : item
+                )
+            );
+        } catch (error) {
+            console.error('Error updating cart quantity:', error);
+            showSnackbar('Failed to update cart quantity', 'error');
+        } finally {
+            setCartLoading(false);
+        }
     };
 
-    const removeFromCart = (cartId) => {
-        setCart(prevCart => prevCart.filter(item => item.cartId !== cartId));
-        showSnackbar('Item removed from cart');
+    const removeFromCart = async (cartId) => {
+        if (!cartService) {
+            showSnackbar('Cart service not available', 'error');
+            return;
+        }
+
+        setCartLoading(true);
+        try {
+            // Find the cart item to get its database ID
+            const cartItem = cart.find(item => item.cartId === cartId);
+            if (!cartItem) {
+                showSnackbar('Cart item not found', 'error');
+                return;
+            }
+
+            await cartService.removeItem(cartItem.cartItemId);
+            
+            // Update local cart state
+            setCart(prevCart => prevCart.filter(item => item.cartId !== cartId));
+            showSnackbar('Item removed from cart');
+        } catch (error) {
+            console.error('Error removing item from cart:', error);
+            showSnackbar('Failed to remove item from cart', 'error');
+        } finally {
+            setCartLoading(false);
+        }
     };
 
     const getTotalCartItems = () => {
         return cart.reduce((total, item) => total + item.quantity, 0);
     };
 
-    const handleCheckout = async () => {
+    const handleCheckout = () => {
+        if (isAdmin) {
+            // Admin direct checkout (existing behavior)
+            handleAdminCheckout();
+        } else {
+            // User quote request
+            setIsCartModalOpen(false);
+            setIsQuoteModalOpen(true);
+        }
+    };
+
+    const handleAdminCheckout = async () => {
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/checkout/checkout`, {
                 cart,
@@ -141,6 +243,25 @@ const Dashboard = () => {
         } catch (error) {
             console.error('Error during checkout:', error);
             showSnackbar('Checkout failed. Please try again.');
+        }
+    };
+
+    const clearCart = async () => {
+        if (!cartService) {
+            showSnackbar('Cart service not available', 'error');
+            return;
+        }
+
+        setCartLoading(true);
+        try {
+            await cartService.clearCart();
+            setCart([]);
+            showSnackbar('Cart cleared');
+        } catch (error) {
+            console.error('Error clearing cart:', error);
+            showSnackbar('Failed to clear cart', 'error');
+        } finally {
+            setCartLoading(false);
         }
     };
 
@@ -221,7 +342,7 @@ const Dashboard = () => {
     };
 
     const handleDeleteItem = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
+        if (window.confirm(t('dashboard.deleteConfirm'))) {
             try {
                 await deleteItem(id);
                 await reloadItems();
@@ -273,17 +394,17 @@ const Dashboard = () => {
 
     if (loading || isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="loading-spinner w-12 h-12 mx-auto mb-4"></div>
-                    <p className="text-gray-600 text-lg">Loading products...</p>
+            <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center'>
+                <div className='text-center'>
+                    <div className='loading-spinner w-12 h-12 mx-auto mb-4'></div>
+                    <p className='text-gray-600 text-lg'>{t('dashboard.loadingProducts')}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className='min-h-screen bg-gradient-to-br from-slate-50 to-slate-100'>
             <Header
                 user={user}
                 role={role}
@@ -293,7 +414,7 @@ const Dashboard = () => {
                 onAddItemClick={() => setOpenAddDialog(true)}
             />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
                 <SearchFilters
                     searchQuery={searchQuery}
                     onSearchChange={handleSearchChange}
@@ -313,14 +434,14 @@ const Dashboard = () => {
                 />
 
                 {/* Main Content */}
-                <div className="mb-8">
+                <div className='mb-8'>
                     {/* Results Summary */}
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                            {role === USER_ROLES.ADMIN ? 'Product Management' : 'Our Products'}
+                    <div className='mb-6'>
+                        <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+                            {role === USER_ROLES.ADMIN ? t('dashboard.productManagement') : t('dashboard.ourProducts')}
                         </h2>
-                        <p className="text-gray-600">
-                            Showing {paginatedItems.length} of {filteredItems.length} products
+                        <p className='text-gray-600'>
+                            {t('dashboard.showingResults').replace('{count}', paginatedItems.length).replace('{total}', filteredItems.length)}
                         </p>
                     </div>
 
@@ -346,27 +467,27 @@ const Dashboard = () => {
 
                     {/* No Results */}
                     {filteredItems.length === 0 && !isLoading && (
-                        <div className="text-center py-12">
-                            <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <div className='text-center py-12'>
+                            <div className='w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center'>
+                                <svg className='w-12 h-12 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
                                 </svg>
                             </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
-                            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+                            <h3 className='text-xl font-semibold text-gray-900 mb-2'>{t('dashboard.noProductsFound')}</h3>
+                            <p className='text-gray-600'>{t('dashboard.tryAdjusting')}</p>
                         </div>
                     )}
 
                     {/* Pagination */}
                     {filteredItems.length > 0 && (
-                        <div className="flex justify-center">
-                            <div className="bg-white rounded-xl shadow-lg p-4">
+                        <div className='flex justify-center'>
+                            <div className='bg-white rounded-xl shadow-lg p-4'>
                                 <Pagination
                                     count={totalPages}
                                     page={currentPage}
                                     onChange={handlePageChange}
-                                    color="primary"
-                                    size="large"
+                                    color='primary'
+                                    size='large'
                                     showFirstButton
                                     showLastButton
                                 />
@@ -377,17 +498,17 @@ const Dashboard = () => {
             </div>
 
             {/* Footer */}
-            <footer className="bg-white border-t border-gray-200 mt-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="text-center">
-                        <div className="flex items-center justify-center space-x-3 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-pink-500 rounded-lg flex items-center justify-center">
-                                <Image src="/favicon.ico" alt="HF Choice" width={20} height={20} />
+            <footer className='bg-white border-t border-gray-200 mt-16'>
+                <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+                    <div className='text-center'>
+                        <div className='flex items-center justify-center space-x-3 mb-4'>
+                            <div className='w-8 h-8 bg-gradient-to-br from-blue-500 to-pink-500 rounded-lg flex items-center justify-center'>
+                                <Image src='/favicon.ico' alt='HF Choice' width={20} height={20} />
                             </div>
-                            <span className="text-lg font-bold gradient-text">HF Choice</span>
+                            <span className='text-lg font-bold gradient-text'>HF Choice</span>
                         </div>
                       
-                        <p className="text-gray-500 text-sm">
+                        <p className='text-gray-500 text-sm'>
                             &copy; {new Date().getFullYear()} HF Choice. All rights reserved.
                         </p>
                     </div>
@@ -421,8 +542,8 @@ const Dashboard = () => {
                 item={selectedItem}
             />
             
-            {/* Cart Modal - Only for non-admin users */}
-            {role !== USER_ROLES.ADMIN && (
+            {/* Cart Modal */}
+            {isCartModalOpen && (
                 <CartModal
                     isOpen={isCartModalOpen}
                     onClose={() => setIsCartModalOpen(false)}
@@ -430,6 +551,16 @@ const Dashboard = () => {
                     onUpdateQuantity={updateCartQuantity}
                     onRemoveItem={removeFromCart}
                     handleCheckout={handleCheckout}
+                />
+            )}
+
+            {/* Quote Request Modal */}
+            {isQuoteModalOpen && (
+                <QuoteRequestModal
+                    isOpen={isQuoteModalOpen}
+                    onClose={() => setIsQuoteModalOpen(false)}
+                    cart={cart}
+                    onClearCart={clearCart}
                 />
             )}
 
@@ -442,10 +573,10 @@ const Dashboard = () => {
             >
                 <MuiAlert 
                     elevation={6} 
-                    variant="filled" 
+                    variant='filled' 
                     onClose={() => setSnackbarOpen(false)} 
-                    severity="success"
-                    className="shadow-xl"
+                    severity='success'
+                    className='shadow-xl'
                 >
                     {snackbarMessage}
                 </MuiAlert>
