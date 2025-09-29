@@ -35,7 +35,15 @@ router.post('/getItem', async (req, res) => {
 
 router.post('/addItem', verifyFirebaseToken, requireAdmin, async (req, res) => {
     try {
-        const newItem = await Item.create(req.body);
+        // Sanitize the data before creating the item
+        const sanitizedData = { ...req.body };
+
+        // Convert empty strings to null for decimal field
+        if (sanitizedData.COSTO === '' || sanitizedData.COSTO === undefined) {
+            sanitizedData.COSTO = null;
+        }
+
+        const newItem = await Item.create(sanitizedData);
         res.status(201).json({ newItem });
     } catch (error) {
         console.error('Error adding item:', error);
@@ -48,7 +56,15 @@ router.put('/editItem', verifyFirebaseToken, requireAdmin, async (req, res) => {
     try {
         const item = await Item.findOne({ where: { id } });
         if (item) {
-            await item.update(req.body);
+            // Sanitize the data before updating the item
+            const sanitizedData = { ...req.body };
+
+            // Convert empty strings to null for decimal field
+            if (sanitizedData.COSTO === '' || sanitizedData.COSTO === undefined) {
+                sanitizedData.COSTO = null;
+            }
+
+            await item.update(sanitizedData);
             res.status(200).json(item);
         } else {
             res.status(404).json({ error: 'Item not found' });
