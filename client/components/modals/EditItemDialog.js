@@ -48,11 +48,11 @@ const EditItemDialog = ({ open, onClose, onEditItem, editItemData, handleEditCha
     open && (
       <div className='fixed inset-0 flex items-center justify-center z-50'>
         <div className='bg-black bg-opacity-50 fixed inset-0' onClick={onClose}></div>
-        <div className='bg-white rounded-lg overflow-hidden shadow-xl w-full max-w-lg z-50'>
-          <div className='p-4 border-b text-center'>
+        <div className='bg-white rounded-lg overflow-hidden shadow-xl w-full max-w-lg max-h-[90vh] z-50 flex flex-col'>
+          <div className='p-4 border-b text-center flex-shrink-0'>
             <h2 className='text-xl font-semibold'>Edit Item</h2>
           </div>
-          <div className='p-4'>
+          <div className='p-4 overflow-y-auto flex-1'>
             {editItemData?.CODIGO && (
               <div className='mb-4 flex justify-center'>
                 <SmartImage
@@ -252,7 +252,7 @@ const EditItemDialog = ({ open, onClose, onEditItem, editItemData, handleEditCha
               )}
             </div>
           </div>
-          <div className='p-4 border-t flex justify-end space-x-2'>
+          <div className='p-4 border-t flex justify-end space-x-2 flex-shrink-0'>
             <button onClick={onClose} className='px-4 py-2 rounded bg-gray-300 hover:bg-gray-400'>
               Cancel
             </button>
